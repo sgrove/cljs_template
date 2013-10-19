@@ -1,25 +1,24 @@
 (ns {{name}}.client.main
-  (:require [noir.cljs.client.watcher :as watcher]
-            [clojure.browser.repl :as repl]
-            [crate.core :as crate])
-  (:use [jayq.core :only [$ append]])
-  (:use-macros [crate.def-macros :only [defpartial]]))
+    (:require [clojure.browser.repl :as repl]
+              [dommy.utils :as utils]
+              [dommy.core :as dommy])
+    (:use-macros
+     [dommy.macros :only [node sel sel1]]))
+
+(.log js/console "Running ClojureScript inside of {{name}}")
 
 ;;************************************************
 ;; Dev stuff
 ;;************************************************
 
-(watcher/init)
-;;(repl/connect "http://localhost:9000/repl")
+(defn ^:export nrepl []
+  (repl/connect "http://localhost:9000/repl"))
 
-;;************************************************
-;; Code
-;;************************************************
+(set! (.-nrepl js/window)
+      nrepl)
 
-(def $content ($ :#content))
+(defn greet! []
+  (when-let [el (sel1 :.cljs-target)]
+    (dommy/set-text! el "ClojureScript Loaded!")))
 
-(defpartial up-and-running []
-  [:p.alert "CLJS is compiled and active... Time to build something!"])
-
-(append $content (up-and-running))
-
+(set! (.-onload js/window) greet!)
